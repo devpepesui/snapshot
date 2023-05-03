@@ -174,7 +174,7 @@ const Form: NextPage = () => {
         })
         /* if (verify) {
             setIsWalletConfirmed(true);
-        }else{
+        }else{}
             setIsWalletConfirmed(false);
         } */
         // eslint-disable-next-line react-hooks/exhaustive-deps
