@@ -4,6 +4,7 @@ import styles from '../styles/Home.module.css';
 import { useEffect, useState } from "react";
 import type { NextPage } from 'next';
 import Image from 'next/image'
+import Header from '../components/Header';
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ const Home: NextPage = () => {
 
   return (
     <>
+      <Header />
       <div className="min-h-screen flex flex-col justify-center text-white text-center mx-auto items-center">
         <div className="text-center">
           <img className='mb-3 h-20' src="./assets/img/logo.png" alt='PEPE.sui' title='The first PEPE on SUI Network' />
