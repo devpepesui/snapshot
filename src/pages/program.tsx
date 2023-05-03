@@ -102,8 +102,15 @@ const Program: NextPage = () => {
             ) : (
               <div className="space-y-2 mt-5">
                 <h1 className="text-white mb-5">You do not have the required amount of PEPE.sui to access the program</h1>
-                <button className="mt-5 w-full bg-gradient-to-br from-blue-500 to-blue-800 hover:from-blue-800 hover:to-blue-500 px-10 py-5 rounded-md font-bold
-               text-white shadow-xl disabled:from-stone-600 disabled:to-stone-700 disabled:text-stone-400 disabled:cursor-not-allowed" onClick={checkPepeBalance}>Check PEPE.sui balance</button>
+                <br />
+                <div className='mt-5'>
+                  <a href="https://pancakeswap.finance/swap?outputCurrency=0x8520568339c077ad035e94b660f3258ee8fd4b45&inputCurrency=BNB" className="bg-gradient-to-br from-orange-500 to-orange-800 hover:from-orange-800 hover:to-orange-500 px-10 py-5 rounded-md font-bold
+               text-white shadow-xl" target='_blank' rel="noreferrer">BUY PEPE.sui on PancakeSwap 🔥</a>
+                </div>
+                <div className=''>
+                  <button className="mt-10 p-5 bg-gradient-to-br from-blue-500 to-blue-800 hover:from-blue-800 hover:to-blue-500 rounded-md font-bold
+               text-white shadow-xl" onClick={checkPepeBalance}>Check PEPE.sui balance 🔍</button>
+                </div>
               </div>
             )}
           </div>
