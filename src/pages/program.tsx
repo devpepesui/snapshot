@@ -11,6 +11,7 @@ import Form from '../components/Form';
 import { useAccount, useSignMessage, useNetwork, useBalance } from 'wagmi'
 import { fetchBalance } from '@wagmi/core'
 import { WalletProvider } from '@suiet/wallet-kit';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Program: NextPage = () => {
   const [loading, setLoading] = useState(true);
@@ -30,6 +31,7 @@ const Program: NextPage = () => {
     if (Number(balance?.formatted) >= Number(process.env.NEXT_PUBLIC_MIN_AMOUT)) {
       setHasEnoughPepe(true);
     } else {
+      toast.error("You don't have enough balance...")
       setHasEnoughPepe(false);
     }
 
@@ -111,6 +113,8 @@ const Program: NextPage = () => {
                   <button className="mt-10 p-5 bg-gradient-to-br from-blue-500 to-blue-800 hover:from-blue-800 hover:to-blue-500 rounded-md font-bold
                text-white shadow-xl" onClick={checkPepeBalance}>Check PEPE.sui balance 🔍</button>
                 </div>
+
+                <Toaster />
               </div>
             )}
           </div>
