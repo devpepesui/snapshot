@@ -68,7 +68,7 @@ const Program: NextPage = () => {
 
       <main className={styles.main}>
         {isConnected ?
-          <div className="min-h-screen flex flex-col justify-center text-white text-center mx-auto items-center">
+          <div className="min-h-screen flex flex-col justify-center text-white text-center mx-auto items-center p-5">
             <div className="text-center">
               <img className='mb-10 h-40' src="./assets/img/logoSnapshot.png" />
             </div>

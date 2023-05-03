@@ -30,7 +30,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen flex flex-col justify-center text-white text-center mx-auto items-center">
+      <div className="min-h-screen flex flex-col justify-center text-white text-center mx-auto items-center p-5">
         <div className="text-center">
           <img className='mb-3 h-20' src="./assets/img/logo.png" alt='PEPE.sui' title='The first PEPE on SUI Network' />
         </div>
