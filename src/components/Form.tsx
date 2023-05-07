@@ -20,6 +20,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { Client } from 'faunadb';
 import { query as q } from 'faunadb';
 import Countdown from './Countdown';
+import { JsonRpcProvider, devnetConnection, Connection } from "@mysten/sui.js";
 
 const Form: NextPage = () => {
     
@@ -29,6 +30,7 @@ const Form: NextPage = () => {
     });
 
     const [isWalletConfirmed, setIsWalletConfirmed] = useState<boolean>(false);
+    const [isCurrentMint, setIsCurrentMint] = useState<number>(0);
     const { address: bscWalletAddress } = useAccount();
 
     const wallet = useWallet();
@@ -40,6 +42,43 @@ const Form: NextPage = () => {
         ['sui:mainnet', '0xcba21ec3a196938f6a39b483ca786e62a18481e6a42330da2683850d3dd15c2a::pepesui_nft::mint_to_sender'],
         ['sui:testnet', '0x88a7d2c55f78900d7f30ff9fbb09169310d42712b28ec28a8b606b43b7e9aa47::pepesui_nft::mint_to_sender'],
     ])
+
+    async function getCurrentMint(){
+       let objectDetails = await getObjectDetails('0xa5ad057b21d6295ec46263e1f79bd61aa8208d93fe0cec3f70b032cb1dd1abcd', 'https://fullnode.mainnet.sui.io:443');
+        
+       let data = objectDetails?.data;
+
+       if(data?.content && 'fields' in data?.content){
+        return data?.content?.fields.current_mint;
+       }
+
+       return 0
+
+       
+    }
+
+    async function getObjectDetails(objectId: string, rpc?: string) {
+        //console.log('getObjectDetails', objectId)
+        let provider;
+        if (rpc) {
+          const connection = new Connection({ fullnode: rpc });
+          provider = new JsonRpcProvider(connection);
+        } else {
+          provider = new JsonRpcProvider();
+        }
+        //console.log('provider', provider)
+      
+        const objectDetails = await provider.getObject({
+          id: objectId,
+          options: {
+            showContent: true,
+            showDisplay: true,
+          },
+        });
+        //console.log('objectDetails', objectDetails)
+      
+        return objectDetails;
+    }
 
     async function verifyWalletBsc(wallet_address: any): Promise<boolean> {
 
@@ -195,6 +234,17 @@ const Form: NextPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bscWalletAddress]);
 
+    useEffect(() => {
+        getCurrentMint().
+            then((resp) => {
+                console.log(resp);
+                setIsCurrentMint(resp);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    })
+
     return (
         <div className='container mx-auto'>
             <div className='text-center justify-center border-cyan-900 border-2 rounded-md w-full min-w-max'>
@@ -275,7 +325,8 @@ const Form: NextPage = () => {
 
                                     {countDownFinished ?
                                         <>
-                                            Now click claim your nft.<br />
+                                            Now click claim your nft.<br /><br />
+                                            <h3 className='text-md font-extrabold text-blue-900 animate-bounce'>{isCurrentMint}/420 MINTED</h3>
                                             <button
                                                 className="px-5 py-5 bg-cyan-900 hover:bg-cyan-900/80 mt-5 rounded-sm font-bold w-full"
                                                 onClick={() => handleExecuteMoveCall(pepeNft.get('sui:mainnet'))}
