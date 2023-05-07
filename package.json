@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mysten/sui.js": "^0.33.0",
     "@rainbow-me/rainbowkit": "^0.12.12",
     "@suiet/wallet-kit": "^0.2.10",
     "ethers": "^5.0.0",

@@ -4,7 +4,7 @@
 import styles from '../styles/Home.module.css';
 import type { NextPage } from 'next';
 import { useState, useEffect } from 'react';
-import { WalletProvider } from '@suiet/wallet-kit';
+import { WalletProvider, useSuiProvider } from '@suiet/wallet-kit';
 import {
     ConnectButton,
     useAccountBalance,
@@ -19,8 +19,10 @@ import { useAccount } from 'wagmi'
 import toast, { Toaster } from 'react-hot-toast';
 import { Client } from 'faunadb';
 import { query as q } from 'faunadb';
+import Countdown from './Countdown';
 
 const Form: NextPage = () => {
+    
     const fauna = new Client({
         //secret: "fnAE6ZauckAAV6UNH1oPOCnT2QSBeiDb1zKHKcRL"
         secret: "fnAFDDEyKvAAzlg9oGar0Po0ObQ4QQS2B0T-kbKs"
@@ -32,12 +34,14 @@ const Form: NextPage = () => {
     const wallet = useWallet();
     const { balance } = useAccountBalance();
 
+    const [ countDownFinished, setCountdownFinished ] = useState<boolean>(false);
+
     const pepeNft = new Map([
-        ['sui:devnet', '0x37b32a726c348b9198ffc22f63a97cb36c01f257258af020cecea8a82575dd56::nft::mint'],
-        ['sui:testnet', '0x57c53166c2b04c1f1fc93105b39b6266cb1eccbe654f5d2fc89d5b44524b11fd::nft::mint'],
+        ['sui:mainnet', '0xcba21ec3a196938f6a39b483ca786e62a18481e6a42330da2683850d3dd15c2a::pepesui_nft::mint_to_sender'],
+        ['sui:testnet', '0x88a7d2c55f78900d7f30ff9fbb09169310d42712b28ec28a8b606b43b7e9aa47::pepesui_nft::mint_to_sender'],
     ])
 
-    async function verifyWalletBsc(wallet_address: any): Promise<boolean>{
+    async function verifyWalletBsc(wallet_address: any): Promise<boolean> {
 
         const notification = toast.loading("Please wait, we are checking...", { duration: 4000 })
 
@@ -83,7 +87,7 @@ const Form: NextPage = () => {
 
             const doesExist = await fauna.query(q.Exists(q.Match(q.Index("all_wallets"), bscWallet)));
 
-            console.log("doesExist", doesExist)
+            //console.log("doesExist", doesExist)
 
             if (doesExist) {
 
@@ -117,32 +121,43 @@ const Form: NextPage = () => {
         }
     }
 
-    /*
     async function handleExecuteMoveCall(target: string | undefined) {
         if (!target) return;
 
+        const notification = toast.loading("We are waiting, check your wallet...", { duration: 4000 })
+
         try {
             const tx = new TransactionBlock()
+
             tx.moveCall({
                 target: target as any,
                 arguments: [
-                    tx.pure('Suiet NFT'),
-                    tx.pure('Suiet Sample NFT'),
-                    tx.pure('https://xc6fbqjny4wfkgukliockypoutzhcqwjmlw2gigombpp2ynufaxa.arweave.net/uLxQwS3HLFUailocJWHupPJxQsli7aMgzmBe_WG0KC4')
+                    //tx.pure('0x55d2b573d3f53775315652059c359de3d9adc66f0b4f9194e15f482f81d80840'), testnet
+                    tx.pure('0xa5ad057b21d6295ec46263e1f79bd61aa8208d93fe0cec3f70b032cb1dd1abcd'),
                 ]
             })
+
             const resData = await wallet.signAndExecuteTransactionBlock({
                 transactionBlock: tx,
             });
-            console.log('executeMoveCall success', resData);
-            alert('executeMoveCall succeeded (see response in the console)');
+
+            toast.success("Your nft has been minted successfully!", {
+                id: notification,
+                duration: 4000
+            });
+
+            console.info('executeMoveCall success', resData);
+
         } catch (e) {
+            toast.error("Whoops something went wrong!", {
+                id: notification,
+            });
+
             console.error('executeMoveCall failed', e);
-            alert('executeMoveCall failed (see response in the console)');
         }
     }
 
-    async function handleSignMsg() {
+    /* async function handleSignMsg() {
         try {
             const msg = 'Hello world!'
             const msgBytes = new TextEncoder().encode(msg)
@@ -164,14 +179,14 @@ const Form: NextPage = () => {
 
     useEffect(() => {
         verifyWalletBsc(bscWalletAddress)
-        .then((resp) => {
-            console.log(resp);
-            setIsWalletConfirmed(resp);
-        })
-        .catch((err) => {
-            console.log(err);
-            setIsWalletConfirmed(false);
-        })
+            .then((resp) => {
+                console.log(resp);
+                setIsWalletConfirmed(resp);
+            })
+            .catch((err) => {
+                console.log(err);
+                setIsWalletConfirmed(false);
+            })
         /* if (verify) {
             setIsWalletConfirmed(true);
         }else{}
@@ -239,12 +254,45 @@ const Form: NextPage = () => {
                     </>
                     :
                     <>
-                        <div className='text-center justify-center w-full'>
+                        <div className='text-center justify-center w-full mx-auto'>
+                            <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 items-center py-5 px-5">
+                                <div className="text-center mx-auto">
+                                    <ConnectButton
+                                        onConnectError={(error) => {
+                                            if (error.code === ErrorCode.WALLET__CONNECT_ERROR__USER_REJECTED) {
+                                                console.warn('user rejected the connection to ' + error.details?.wallet)
+                                            } else {
+                                                console.warn('unknown connect error: ', error)
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
                             <div className='p-5'>
                                 <h1 className="text-4xl font-bold mb-2">Congratulations 🚀</h1>
                                 <p>
-                                    Your first mission on PEPE SUI has been completed 💪 <br />
-                                    {/*  Now share it on twitter and click claim your reservation.<br /> */}
+                                    Your first mission on PEPE SUI has been completed 💪 <br /><br />
+
+                                    {countDownFinished ?
+                                        <>
+                                            Now click claim your nft.<br />
+                                            <button
+                                                className="px-5 py-5 bg-cyan-900 hover:bg-cyan-900/80 mt-5 rounded-sm font-bold w-full"
+                                                onClick={() => handleExecuteMoveCall(pepeNft.get('sui:mainnet'))}
+                                            >
+                                                CLAIM NFT
+                                            </button>
+                                        </>
+                                    :
+                                        <>
+                                            <p className='text-cyan-900 text-xl font-extrabold'>COUNTDOWN TO FREE MINT</p>
+
+                                            <Countdown setCountdownFinished={setCountdownFinished} countdownEndDate="2023-05-07T11:00:00" />
+
+
+                                        </>
+                                    }
+                                    
                                 </p>
                             </div>
                         </div>
